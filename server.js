@@ -1,10 +1,24 @@
 const express = require('express');
 const app = express();
 const fs = require('fs');
+const https = require('https');
+const forceSSL = require('express-force-ssl');
 
 const port = process.env.PORT || 3000;
 
+const certificates = {
+    key : fs.readFileSync('./certs/private.key'),
+    cert : fs.readFileSync('./certs/certificate.crt')
+}
+
 const logPath = __dirname + '/logs';
+
+const httpsServer = https.createServer(certificates, app);
+httpsServer.listen(3001, () => {
+    console.log(`App Started at https://localhost:3001`);
+})
+
+app.use(forceSSL);
 
 app.get('/', logger, (req, res) => {
     res.end("Hello World!");
@@ -51,5 +65,5 @@ function logger(req, res, next) {
 }
 
 app.listen(port, () => {
-    console.log('App Started at port ', port);
+    console.log(`App Started at http://localhost:${port}`);
 });
