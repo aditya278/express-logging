@@ -1,0 +1,1 @@
+Download your SSL certificate and key in this folder.

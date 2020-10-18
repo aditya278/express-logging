@@ -4,8 +4,8 @@
   "description": "",
   "main": "server.js",
   "dependencies": {
-    "express": "^4.17.1",
-    "express-force-ssl": "^0.3.2"
+    "express-force-ssl": "^0.3.2",
+    "express": "^4.17.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.5"
