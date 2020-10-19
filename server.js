@@ -2,23 +2,27 @@ const express = require('express');
 const app = express();
 const fs = require('fs');
 const https = require('https');
-const forceSSL = require('express-force-ssl');
+const http = require('http');
 
-const port = process.env.PORT || 3000;
+const httpPort = process.env.HTTP_PORT || 3000;
+const httpsPort = process.env.HTTPS_PORT || 3001;
 
 const certificates = {
     key : fs.readFileSync('./certs/private.key'),
     cert : fs.readFileSync('./certs/certificate.crt')
 }
 
+const httpServer = http.createServer(app);
+const httpsServer = https.createServer(certificates, app);
+
 const logPath = __dirname + '/logs';
 
-const httpsServer = https.createServer(certificates, app);
-httpsServer.listen(3001, () => {
-    console.log(`App Started at https://localhost:3001`);
-})
-
-app.use(forceSSL);
+app.use('*', (req, res, next) => {
+    if(req.secure)
+        next();
+    else
+        res.redirect('https://'+ req.hostname + ':' + httpsPort + req.url);
+});
 
 app.get('/', logger, (req, res) => {
     res.end("Hello World!");
@@ -64,7 +68,9 @@ function logger(req, res, next) {
     })
 }
 
-app.listen(port, () => {
-    console.log(`App Started at http://localhost:${port}`);
+httpServer.listen(httpPort, () => {
+    console.log(`App Started at http://localhost:${httpPort}`);
 });
-
+httpsServer.listen(httpsPort, () => {
+    console.log(`App Started at https://localhost:${httpsPort}`);
+})
